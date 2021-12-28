@@ -17,9 +17,6 @@ const addWatcher = async (req: Request, res: Response): Promise<void> => {
         const reqWatcher = req.body.watcher as Watcher;
         //console.log(reqWatcher);
         
-        assert(reqWatcher.url);
-        assert(reqWatcher.symbol);
-
         // Validate url etc
         const id = 0;
         const cmcId = 0;
