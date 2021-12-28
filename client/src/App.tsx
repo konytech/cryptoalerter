@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import WatcherItem from './components/WatcherItem'
 import AddWatcher from './components/AddWatcher'
-import { getWatchers, addWatcher } from './API'
+import { getWatchers, addWatcher } from './api/API'
 
 const App: React.FC = () => {
   const [watchers, setWatchers] = useState<Watcher[]>([]);
