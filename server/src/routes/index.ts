@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getWatchers, addWatcher } from "../controllers/watchers";
 
-const router: Router = Router()
+const router: Router = Router();
 router.get("/watchers", getWatchers);
 router.post("/add-watcher", addWatcher);
 

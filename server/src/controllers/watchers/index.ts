@@ -1,11 +1,12 @@
 import { Response, Request } from "express";
 import { Watcher } from "./../../types/watcher";
 import WatcherModel from "../../models/watcher";
+import { assert } from "console";
 
 const getWatchers = async (req: Request, res: Response): Promise<void> => {
     try {
         const watchers: Watcher[] = await WatcherModel.find();
-        res.status(200).json({ todos: watchers });
+        res.status(200).json({ watchers });
     } catch (error) {
         throw error;
     }
@@ -13,24 +14,29 @@ const getWatchers = async (req: Request, res: Response): Promise<void> => {
 
 const addWatcher = async (req: Request, res: Response): Promise<void> => {
     try {
-        // TODO log req body
-        const body = req.body as Pick<Watcher, 'url' | 'symbol'>
+        const reqWatcher = req.body.watcher as Watcher;
+        //console.log(reqWatcher);
         
+        assert(reqWatcher.url);
+        assert(reqWatcher.symbol);
+
         // Validate url etc
+        const id = 0;
         const cmcId = 0;
         const order = 0;
         
         const watcher: Watcher = new WatcherModel({
-            url: body.url,
-            symbol: body.symbol,
+            id: id,
+            url: reqWatcher.url,
+            symbol: reqWatcher.symbol,
             cmcId,
             active: true,
-            creationDate: new Date().getTime(),
             order,
             // targetPrice: -1,
             // entryPrice: -1,
             // triggerLimitPercent: -1,
             // amountBoughtToSell: -1
+            isNew: true
         });
         
         const newWatcher: Watcher = await watcher.save();
@@ -42,7 +48,10 @@ const addWatcher = async (req: Request, res: Response): Promise<void> => {
             watchers: allWatchers 
         });
     } catch (error) {
-        throw error
+        res.status(400).json({ 
+            message: 'Bad request' 
+        });
+        console.log(error);
     }
 }
 

@@ -9,7 +9,6 @@ export interface Watcher extends Document {
     symbol: string;                 // REQUIRED
     cmcId: number;                  // REQUIRED
     active: boolean;                // REQUIRED
-    creationDate: number;           // REQUIRED
     order: number;                  // REQUIRED
     targetPrice: number;            // OPT
     entryPrice: number;             // OPT

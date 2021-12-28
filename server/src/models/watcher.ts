@@ -1,5 +1,7 @@
 import { Watcher } from "./../types/watcher";
-import { model, Schema } from "mongoose";
+import { model, Schema, connection } from "mongoose";
+
+console.log(connection);
 
 const watcherSchema = new Schema({
     url: {
@@ -16,10 +18,6 @@ const watcherSchema = new Schema({
     },
     active: {
         type: Boolean,
-        required: true,
-    },
-    creationDate: {
-        type: Number,
         required: true,
     },
     order: {
@@ -47,4 +45,4 @@ const watcherSchema = new Schema({
     timestamps: true
 });
 
-export default model<Watcher>("Watcher", watcherSchema);
+export default connection.model<Watcher>("Watcher", watcherSchema);
