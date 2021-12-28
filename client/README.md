@@ -44,3 +44,19 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Web dev helper
+// xs --- Extra small devices (portrait phones, less than 576px)
+// No media query since this is the default in Bootstrap
+
+// sm --- Small devices (landscape phones, 576px and up)
+@media (min-width: 576px) { ... }
+
+// md --- Medium devices (tablets, 768px and up)
+@media (min-width: 768px) { ... }
+
+// lg --- Large devices (desktops, 992px and up)
+@media (min-width: 992px) { ... }
+
+// xl --- Extra large devices (large desktops, 1200px and up)
+@media (min-width: 1200px) { ... }

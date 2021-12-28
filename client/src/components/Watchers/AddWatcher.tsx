@@ -1,4 +1,6 @@
+import { Box, Card, CardContent, Typography, TextField } from '@mui/material';
 import React, { useState } from 'react';
+import theme from '../../theme';
 
 type Props = {
   addWatcher: (e: React.FormEvent, formData: Watcher | any) => void;
@@ -15,19 +17,26 @@ const AddWatcher: React.FC<Props> = ({ addWatcher }) => {
   };
 
   return (
-    <form className='Form' onSubmit={(e) => addWatcher(e, formData)}>
-      <div>
-        <div>
-          <label htmlFor='url'>Url</label>
-          <input onChange={handleForm} type='text' id='url' />
-        </div>
-        <div>
-          <label htmlFor='symbol'>Symbol</label>
-          <input onChange={handleForm} type='text' id='symbol' />
-        </div>
-      </div>
-      <button disabled={formData === undefined ? true : false} >Add Watcher</button>
-    </form>
+    <Box>
+      <Typography variant="h4" sx={{ marginBottom: '16px' }}>Add watcher</Typography>
+      <Card sx={{ width: { xl: '50%' }, backgroundColor: theme.colors.fourth }}>
+        <CardContent>
+          <form className='Form' onSubmit={(e) => addWatcher(e, formData)}>
+            <div>
+              <Box>
+                <TextField sx={{ width: { xs: '100%', md: '80%' }, marginBottom: "8px" }}
+                  required
+                  id="outlined-required"
+                  label="URL"
+                  placeholder="https://"
+                />
+              </Box>
+            </div>
+            <button disabled={formData === undefined ? true : false} >Add Watcher</button>
+          </form>
+        </CardContent>
+      </Card>
+    </Box>
   )
 };
 

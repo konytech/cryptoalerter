@@ -33,7 +33,6 @@ const Main: React.FC = () => {
 
   return (
     <Box>
-      <main className='App'>
         <h1>My Watchers</h1>
         <AddWatcher addWatcher={handleAddWatcher} />
         {watchers && watchers.map((watcher: Watcher) => (
@@ -44,7 +43,6 @@ const Main: React.FC = () => {
             watcher={watcher}
           />
         ))}
-      </main>
     </Box>
   )
 }
