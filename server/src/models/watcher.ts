@@ -1,7 +1,5 @@
 import { Watcher } from "./../types/watcher";
-import { model, Schema, connection } from "mongoose";
-
-console.log(connection);
+import { Schema, connection } from "mongoose";
 
 const watcherSchema = new Schema({
     url: {

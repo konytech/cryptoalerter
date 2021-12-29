@@ -11,7 +11,7 @@ const WatcherItem: React.FC<Props> = ({ watcher/*, updateWatcher, deleteWatcher*
   return (
     <div className="Card">
       <div className="Card--text">
-        <h1 className={checkTodo}>{watcher.symbol}</h1>
+        <h1 className={checkTodo}>{watcher.coinInfo.symbol}</h1>
       </div>
       <div className="Card--button">
         <button

@@ -1,7 +1,13 @@
-interface Watcher {
-    _id?: number;
+// Server common
+interface CoinInfo {
     url: string;
     symbol: string;
+    cmcId: number;
+}
+
+interface Watcher {
+    _id?: number;
+    coinInfo: CoinInfo;
     active?: boolean;
     order?: number;
     targetPrice?: number;
@@ -10,6 +16,7 @@ interface Watcher {
     amountBoughtToSell?: number;
 }
 
+// Client only
 interface WatcherProps {
     watcher: Watcher
 }

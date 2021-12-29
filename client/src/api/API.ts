@@ -8,10 +8,17 @@ export const getWatchers = function(): Promise<AxiosResponse<ApiDataType>> {
 
 export const addWatcher = function(formData: Watcher): Promise<AxiosResponse<ApiDataType>> {
     const watcher: Watcher = {
-        url: formData.url,
-        symbol: formData.symbol
+        coinInfo: {
+            url: formData.coinInfo.url,
+            symbol: formData.coinInfo.symbol,
+            cmcId: formData.coinInfo.cmcId
+        }
     }
     return axios.post(baseUrl + "/add-watcher", { watcher });
+};
+
+export const getCoinInfo = function(url: string): Promise<AxiosResponse<ApiDataType>> {
+    return axios.post(baseUrl + "/coinInfo", { url });
 };
 
 // TODO edit

@@ -1,7 +1,6 @@
 import { Response, Request } from "express";
-import { Watcher } from "./../../types/watcher";
-import WatcherModel from "../../models/watcher";
-import { assert } from "console";
+import { Watcher } from "../types/watcher";
+import WatcherModel from "../models/watcher";
 
 const getWatchers = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -24,8 +23,8 @@ const addWatcher = async (req: Request, res: Response): Promise<void> => {
         
         const watcher: Watcher = new WatcherModel({
             id: id,
-            url: reqWatcher.url,
-            symbol: reqWatcher.symbol,
+            url: reqWatcher.coinInfo.url,
+            symbol: reqWatcher.coinInfo.symbol,
             cmcId,
             active: true,
             order,
@@ -46,7 +45,7 @@ const addWatcher = async (req: Request, res: Response): Promise<void> => {
         });
     } catch (error) {
         res.status(400).json({ 
-            message: 'Bad request' 
+            message: `[Server] ${error}`
         });
         console.log(error);
     }
@@ -59,7 +58,6 @@ const addWatcher = async (req: Request, res: Response): Promise<void> => {
 // TODO Delete
 // https://www.freecodecamp.org/news/how-to-build-a-todo-app-with-react-typescript-nodejs-and-mongodb/
 // https://github.com/ibrahima92/fullstack-typescript-mern-todo/blob/master/server/src/controllers/todos/index.ts
-
 
 export { 
     getWatchers, 

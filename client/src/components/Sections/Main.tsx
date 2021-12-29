@@ -33,16 +33,16 @@ const Main: React.FC = () => {
 
   return (
     <Box>
-        <h1>My Watchers</h1>
-        <AddWatcher addWatcher={handleAddWatcher} />
-        {watchers && watchers.map((watcher: Watcher) => (
-          <WatcherItem
-            key={watcher._id}
-            // updateTodo={handleUpdateTodo}
-            // deleteTodo={handleDeleteTodo}
-            watcher={watcher}
-          />
-        ))}
+      <h1>My Watchers</h1>
+      <AddWatcher addWatcher={handleAddWatcher} />
+      {watchers && watchers.map((watcher: Watcher) => (
+        <WatcherItem
+          key={watcher._id}
+          // updateTodo={handleUpdateTodo}
+          // deleteTodo={handleDeleteTodo}
+          watcher={watcher}
+        />
+      ))}
     </Box>
   )
 }
