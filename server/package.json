@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "start": "tsc-watch --onSuccess \"node ./dist/js/app.js\""
+    "start": "tsc-watch --onSuccess \"node ./dist/js/app.js\"",
+    "find-cmcid": "node dist/js/tests/cmcIdFinderTest.js"
   },
   "dependencies": {
     "axios": "^0.24.0",

@@ -20,18 +20,20 @@ async function find(url: string) {
         }
 
         try {
-            cmcId = +new RegExp(`"id":(\\d*),"name":"${name}"`, 'i').exec(html.data)![1];
-        } catch (error) {
-            if(tryCounter == maxTries) {
-                throw new Error("Unable to find cmcId for url: " + url);
-            }
-        }
-
-        try {
             symbol = new RegExp(`class="nameSymbol">([a-zA-Z]*)<`).exec(html.data)![1];
         } catch (error) {
             if(tryCounter == maxTries) {
                 throw new Error("Unable to find symbol for url: " + url);
+            }
+        }
+
+        if(symbol) {
+            try {
+                cmcId = +new RegExp(`"info":{"id":(\\d*).*symbol":"${symbol}"`, 'i').exec(html.data)![1];
+            } catch (error) {
+                if(tryCounter == maxTries) {
+                    throw new Error("Unable to find cmcId for url: " + url);
+                }
             }
         }
 
