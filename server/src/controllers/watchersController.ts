@@ -36,12 +36,10 @@ const addWatcher = async (req: Request, res: Response): Promise<void> => {
         });
         
         const newWatcher: Watcher = await watcher.save();
-        const allWatchers: Watcher[] = await WatcherModel.find();
         
         res.status(201).json({ 
             message: 'Watcher added', 
-            watcher: newWatcher, 
-            watchers: allWatchers 
+            watcher: newWatcher 
         });
     } catch (error) {
         res.status(400).json({ 

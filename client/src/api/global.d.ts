@@ -10,10 +10,12 @@ interface Watcher {
     coinInfo: CoinInfo;
     active?: boolean;
     order?: number;
-    targetPrice?: number;
+    type?: number;
     entryPrice?: number;
-    triggerLimitPercent?: number;
-    amountBoughtToSell?: number;
+    targetPrice?: number;
+    targetPercentage?: number;
+    amountToSell?: number;
+    note?: string;
 }
 
 // Client only

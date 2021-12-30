@@ -22,25 +22,30 @@ const watcherSchema = new Schema({
         type: Number,
         required: true,
     },
-    targetPrice: {
-        type: Number,
-        required: false,
-    },
     entryPrice: {
         type: Number,
         required: false,
     },
-    triggerLimitPercent: {
+    targetPrice: {
         type: Number,
         required: false,
     },
-    amountBoughtToSell: {
+    triggerPercentage: {
         type: Number,
         required: false,
-    }
+    },
+    amountToSell: {
+        type: Number,
+        required: false,
+    },
+    note: {
+        type: String,
+        required: false,
+    },
 },
-{
-    timestamps: true
-});
+    {
+        timestamps: true
+    }
+);
 
 export default connection.model<Watcher>("Watcher", watcherSchema);

@@ -1,20 +1,29 @@
 import { Response, Request } from "express";
-import { CoinInfo } from "../types/watcher";
+import { CoinInfo, Watcher } from "../types/watcher";
 import cmcIdFinder from "../external/cmcIdFinder";
+import cmcApi from "../external/cmc-api"
 
 const getCoinInfo = async (req: Request, res: Response): Promise<void> => {
     try {
         const reqUrl = req.body.url as string;
         const coinInfo = await cmcIdFinder.find(reqUrl);
-        res.status(200).json({ coinInfo });
+        const response = await cmcApi.getLatestQuotes([coinInfo.cmcId]);
+        const entryPrice = response.data[coinInfo.cmcId].quote.USD.price;
+
+        const watcher = {
+            coinInfo,
+            entryPrice
+        } as Watcher;
+
+        res.status(200).json({ watcher });
     } catch (error) {
-        res.status(400).json({ 
+        res.status(400).json({
             message: `[Server] ${error}`
         });
         console.log(error);
     }
 }
 
-export { 
-    getCoinInfo 
+export {
+    getCoinInfo
 };
