@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import { CoinInfo, Watcher } from "../types/watcher";
+import { Watcher } from "../types/watcher";
 import cmcIdFinder from "../external/cmcIdFinder";
 import cmcApi from "../external/cmc-api"
 

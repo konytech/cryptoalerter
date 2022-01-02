@@ -11,7 +11,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Main from './components/Sections/Main';
+import WatchersList from './components/Sections/WatchersList';
 import MenuIcon from '@mui/icons-material/Menu';
 import AddIcon from '@mui/icons-material/Add';
 import EventIcon from '@mui/icons-material/Event';
@@ -22,7 +22,12 @@ import theme from "./theme";
 const drawerWidth = 240;
 
 export default function App() {
-  const [menuIndex, setMenuIndex] = React.useState(-1);
+
+  /*
+          {menuIndex === 0 && <Main />}
+          {menuIndex === -1 && <AddWatcher />}
+  */
+  const [menuIndex, setMenuIndex] = React.useState(0); // 0 for main, -1 for addWatcher
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const handleDrawerToggle = () => {
@@ -33,17 +38,17 @@ export default function App() {
     return ++index * -list;
   };
 
-  const handleAddWatcher = (e: React.FormEvent, formData: Watcher): void => {
-    // e.preventDefault();
-    // console.log(new Date());
-    // addWatcher(formData)
-    //   .then(res => {
-    //     setWatchers(res.data.watchers);
-    //   })
-    //   .catch(error => {
-    //     console.error(error);
-    //   });
-  };
+  // const handleAddWatcher = (e: React.FormEvent, formData: Watcher): void => {
+  //   // e.preventDefault();
+  //   // console.log(new Date());
+  //   // addWatcher(formData)
+  //   //   .then(res => {
+  //   //     setWatchers(res.data.watchers);
+  //   //   })
+  //   //   .catch(error => {
+  //   //     console.error(error);
+  //   //   });
+  // };
 
   const drawer = (
     <div>
@@ -148,8 +153,8 @@ export default function App() {
           sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
         >
           <Toolbar />
-          {menuIndex === 0 && <Main />}
-          {menuIndex === -1 && <AddWatcher addWatcher={handleAddWatcher} />}
+          {menuIndex === 0 && <WatchersList />}
+          {menuIndex === -1 && <AddWatcher />}
         </Box>
       </Box>
     </ThemeProvider>

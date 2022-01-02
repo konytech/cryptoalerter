@@ -1,7 +1,7 @@
 import { Watcher } from "./../types/watcher";
 import { Schema, connection } from "mongoose";
 
-const watcherSchema = new Schema({
+const coinInfoSchema = new Schema({
     url: {
         type: String,
         required: true,
@@ -14,11 +14,23 @@ const watcherSchema = new Schema({
         type: Number,
         required: true,
     },
+    iconBase64: {
+        type: String,
+        required: true,
+    }
+});
+
+const watcherSchema = new Schema({
+    coinInfo: coinInfoSchema,
     active: {
         type: Boolean,
         required: true,
     },
     order: {
+        type: Number,
+        required: true,
+    },
+    type: {
         type: Number,
         required: true,
     },
@@ -30,7 +42,7 @@ const watcherSchema = new Schema({
         type: Number,
         required: false,
     },
-    triggerPercentage: {
+    targetPercentage: {
         type: Number,
         required: false,
     },

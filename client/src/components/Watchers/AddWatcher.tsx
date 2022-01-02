@@ -1,10 +1,9 @@
-import { Box, Card, CardContent, Typography, TextField, Alert, Link, LinearProgress, Divider } from '@mui/material';
-import { FormControl, InputLabel, Select, MenuItem, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
+import { Box, Card, CardContent, Typography, TextField, Alert, Link, LinearProgress, Divider, Button, CardMedia } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, FormGroup, FormControlLabel, Checkbox, CircularProgress } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import theme from '../../theme';
-import { getCoinInfo } from '../../api/API'
+import { getCoinInfo, addWatcher } from '../../api/API'
 import { AxiosError, AxiosResponse } from 'axios';
-import LinkIcon from '@mui/icons-material/Link';
 import { AlertType } from '../../api/types';
 
 const enum FEAlertType {
@@ -12,35 +11,38 @@ const enum FEAlertType {
   TargetPercentage = 2,
 }
 
-type Props = {
-  addWatcher: (e: React.FormEvent, formData: Watcher | any) => void;
-}
+// type Props = {
+//   addWatcher: (e: React.FormEvent, formData: Watcher | any) => void;
+// }
 
-const AddWatcher: React.FC<Props> = ({ addWatcher }) => {
-  const [watcher, setWatcher] = useState<Watcher>(
-    {
-      // TODO DEV ONLY
-      coinInfo: {
-        cmcId: 1,
-        url: "https://coinmarketcap.com/currencies/bitcoin/",
-        symbol: "BTC"
-      },
-      entryPrice: 46916.97620031335
-    }
-  );
-  const [cmcUrlState, setCmcUrlState] = useState({
-    hidden: true, // TODO DEV ONLY
-    loading: false,
-    errorMessage: ""
+const AddWatcher/*: React.FC<Props>*/ = (/*{ addWatcher }*/) => {
+  const [watcher, setWatcher] = useState<Watcher>({
+    coinInfo: {
+      cmcId: 0, // TODO DEV ONLY
+      url: "https://coinmarketcap.com/currencies/bitcoin/",
+      symbol: "BTC",
+      iconBase64: ""
+    },
+    entryPrice: 46916.97620031335
   });
+  const [cmcUrlState, setCmcUrlState] = useState(
+    {
+      hidden: false, // TODO DEV ONLY
+      loading: false,
+      errorMessage: ""
+    });
   const [feAlertType, setFEAlertType] = useState(FEAlertType.TargetPrice);
+  const [addButtonEnabled, setAddButtonEnabled] = useState(false);
+  const [addButtonLoading, setAddButtonLoading] = useState(false);
+  const [addWatcherErrorMsg, setAddWatcherErrorMsg] = useState("");
 
+  // Logging
   useEffect(() => {
     console.log('[useEffect] Watcher: ', watcher);
   }, [watcher])
 
+  // Init watcher alert type
   useEffect(() => {
-    // Initialize watcher alert type
     switch (feAlertType) {
       case FEAlertType.TargetPrice:
         if (watcher.type !== AlertType.TargetPriceBelow && watcher.type !== AlertType.TargetPriceAbove) {
@@ -58,6 +60,28 @@ const AddWatcher: React.FC<Props> = ({ addWatcher }) => {
     }
   }, [watcher, feAlertType])
 
+  // Form validation
+  useEffect(() => {
+    // Clamp
+    if (watcher.targetPrice! < 0)
+      setWatcher({ ...watcher, targetPrice: 0 });
+
+    // Clamp
+    if (watcher.targetPercentage! < 1)
+      setWatcher({ ...watcher, targetPercentage: 1 });
+
+    // Add button state
+    let canAdd = false;
+
+    if (watcher.targetPrice! >= 0 && (watcher.type! === AlertType.TargetPriceAbove || watcher.type! === AlertType.TargetPriceBelow))
+      canAdd = true;
+
+    if (watcher.targetPercentage! > 0 && (watcher.type! === AlertType.TargetPositivePercentage || watcher.type! === AlertType.TargetNegativePercentage))
+      canAdd = true;
+
+    setAddButtonEnabled(canAdd)
+  }, [watcher])
+
   function setWatcherAlertType(checkboxChecked: boolean) {
     switch (feAlertType) {
       case FEAlertType.TargetPrice:
@@ -71,13 +95,14 @@ const AddWatcher: React.FC<Props> = ({ addWatcher }) => {
         break;
     }
   }
-
-  const handleForm = (e: React.FormEvent<HTMLInputElement>): void => {
-    setWatcher({
-      ...watcher,
-      [e.currentTarget.id]: e.currentTarget.value,
-    } as Watcher);
-  };
+  /*
+    const handleForm = (e: React.FormEvent<HTMLInputElement>): void => {
+      setWatcher({
+        ...watcher,
+        [e.currentTarget.id]: e.currentTarget.value,
+      } as Watcher);
+    };
+  */
 
   const onCMCUrlChange = (url: string) => {
     if (url.match("^https://coinmarketcap.com/currencies/[a-zA-Z-]*/?$")) {
@@ -86,7 +111,7 @@ const AddWatcher: React.FC<Props> = ({ addWatcher }) => {
       getCoinInfo(url)
         .then((res: AxiosResponse) => {
           setCmcUrlState({ ...cmcUrlState, hidden: true });
-          console.log(res.data.watcher.entryPrice);
+          //console.log(res.data.watcher.entryPrice);
           setWatcher({ ...watcher, coinInfo: res.data.watcher.coinInfo, entryPrice: res.data.watcher.entryPrice });
         })
         .catch((error: AxiosError) => {
@@ -95,6 +120,21 @@ const AddWatcher: React.FC<Props> = ({ addWatcher }) => {
           console.error(error);
         });
     }
+  }
+
+  const onAddBtnClick = () => {
+    setAddButtonLoading(true);
+    setAddWatcherErrorMsg("");
+    addWatcher(watcher)
+      .then((res: AxiosResponse) => {
+        setAddButtonLoading(false);
+      })
+      .catch((error: AxiosError) => {
+        const errorMsg = error.response?.data.message ?? error.message;
+        setAddWatcherErrorMsg(errorMsg);
+        setAddButtonLoading(false);
+        console.error(error);
+      });
   }
 
   return (
@@ -121,153 +161,152 @@ const AddWatcher: React.FC<Props> = ({ addWatcher }) => {
                 </Link>
               </Box>
               {cmcUrlState.errorMessage && <Box sx={{ marginTop: '8px' }}>
-                <Alert severity="error" onClose={() => setCmcUrlState(x => { return { ...x, errorMessage: "" } })}>{cmcUrlState.errorMessage}</Alert>
+                <Alert severity="error" onClose={() => setCmcUrlState({ ...cmcUrlState, errorMessage: "" })}>{cmcUrlState.errorMessage}</Alert>
               </Box>}
             </Box>
           }
-          {watcher &&
+          {watcher.coinInfo.cmcId > 0 &&
             <Box>
-              <Box sx={{ width: '56px', height: '56px' }}>
-                <Link href={watcher.coinInfo.url} target="_blank" rel="noreferrer">
-                  <LinkIcon sx={{ color: 'white', width: '32px', height: '32px' }} />
-                </Link>
-              </Box>
-              <TextField sx={{ width: { xs: '100%', md: '50%' }, marginBottom: "16px", marginRight: "8px" }}
-                label="CoinMarketCap URL"
-                value={watcher.coinInfo.url.replace("https://coinmarketcap.com", "")}
-                disabled
-                color='success'
-              />
-              <TextField sx={{ width: { xs: '48%', md: '20%' }, marginBottom: "8px", marginRight: "8px" }}
-                label="CoinMarketCap ID"
-                value={watcher.coinInfo.cmcId}
-                disabled
-              />
-              <TextField sx={{ width: { xs: '48%', md: '20%' }, marginBottom: "8px" }}
-                label="Symbol"
-                value={watcher.coinInfo.symbol}
-                disabled
-              />
-              <Box sx={{ marginTop: '8px' }}>
-                <TextField sx={{ width: { xs: '100%', md: '30%' }, marginBottom: "16px", marginRight: { xs: '0', md: '8px' } }}
-                  label="Current price"
-                  value={watcher.entryPrice}
-                  onChange={e => setWatcher({ ...watcher, entryPrice: +e.target.value })}
-                  type="number"
+              <Box>
+                <Box sx={{ width: '40px', height: '40px', marginBottom: "16px" }}>
+                  <Link href={watcher.coinInfo.url} target="_blank" rel="noreferrer">
+                    <CardMedia component='img' src={`data:image/png;base64, ${watcher.coinInfo.iconBase64}`} />
+                  </Link>
+                </Box>
+                <TextField sx={{ width: { xs: '100%', md: '50%' }, marginBottom: "16px", marginRight: "8px" }}
+                  label="CoinMarketCap URL"
+                  value={watcher.coinInfo.url.replace("https://coinmarketcap.com", "")}
+                  disabled
+                  color='success'
                 />
-                <FormControl sx={{ width: { xs: '100%', md: '50%' }, marginBottom: "16px" }}>
-                  <InputLabel>Type</InputLabel>
-                  <Select
-                    id="type-select"
-                    value={feAlertType}
-                    label="Type"
-                    onChange={e => setFEAlertType(+e.target.value)}
-                  >
-                    <MenuItem value={FEAlertType.TargetPrice}>Target price</MenuItem>
-                    <MenuItem value={FEAlertType.TargetPercentage}>Target percentage</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-            </Box>
-          }
-          {feAlertType === FEAlertType.TargetPrice &&
-            <Box>
-              <Box sx={{ display: { xs: 'block', md: 'flex' }, marginBottom: "8px" }}>
-                <Box sx={{ width: { xs: '100%', md: '30%' }, marginRight: '8px' }}>
-                  <TextField fullWidth
-                    label="Target Price (USD)"
+                <TextField sx={{ width: { xs: '48%', md: '20%' }, marginBottom: "8px", marginRight: "8px" }}
+                  label="CoinMarketCap ID"
+                  value={watcher.coinInfo.cmcId}
+                  disabled
+                />
+                <TextField sx={{ width: { xs: '48%', md: '20%' }, marginBottom: "8px" }}
+                  label="Symbol"
+                  value={watcher.coinInfo.symbol}
+                  disabled
+                />
+                <Box sx={{ marginTop: '8px' }}>
+                  <TextField sx={{ width: { xs: '100%', md: '30%' }, marginBottom: "16px", marginRight: { xs: '0', md: '8px' } }}
+                    label="Current price"
+                    value={watcher.entryPrice}
+                    onChange={e => setWatcher({ ...watcher, entryPrice: +e.target.value })}
                     type="number"
-                    value={watcher.targetPrice}
-                    onChange={e => setWatcher({ ...watcher, targetPrice: +e.target.value })}
                   />
-                </Box>
-                <Box>
-                  <FormGroup>
-                    <FormControlLabel control=
-                      {
-                        <Checkbox
-                          defaultChecked
-                          onChange={e => setWatcherAlertType(e.target.checked)}
-                        />
-                      } label="Trigger above target" />
-                  </FormGroup>
+                  <FormControl sx={{ width: { xs: '100%', md: '50%' }, marginBottom: "16px" }}>
+                    <InputLabel>Type</InputLabel>
+                    <Select
+                      id="type-select"
+                      value={feAlertType}
+                      label="Type"
+                      onChange={e => setFEAlertType(+e.target.value)}
+                    >
+                      <MenuItem value={FEAlertType.TargetPrice}>Target price</MenuItem>
+                      <MenuItem value={FEAlertType.TargetPercentage}>Target percentage</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Box>
               </Box>
-              {watcher.targetPrice !== undefined &&
-                <Typography variant="subtitle2" sx={{ marginBottom: '8px', color: '#90caf9' }}>
-                  Alert will be triggered when: 1 {watcher.coinInfo.symbol} {watcher.type == AlertType.TargetPriceAbove ? ">" : "<"} {watcher.targetPrice} USD
-                </Typography>
-              }
-            </Box>
-          }
-          {feAlertType === FEAlertType.TargetPercentage &&
-            <Box>
-              <Box sx={{ display: { xs: 'block', md: 'flex' }, marginBottom: "8px" }}>
-                <Box sx={{ width: { xs: '100%', md: '30%' }, marginRight: '8px' }}>
-                  <TextField fullWidth
-                    label="Target percentage (%)"
+              <Box>
+                {feAlertType === FEAlertType.TargetPrice &&
+                  <Box>
+                    <Box sx={{ display: { xs: 'block', md: 'flex' }, marginBottom: "8px" }}>
+                      <Box sx={{ width: { xs: '100%', md: '30%' }, marginRight: '8px' }}>
+                        <TextField fullWidth
+                          label="Target Price (USD)"
+                          type="number"
+                          value={watcher.targetPrice}
+                          onChange={e => setWatcher({ ...watcher, targetPrice: +e.target.value })}
+                        />
+                      </Box>
+                      <Box>
+                        <FormGroup>
+                          <FormControlLabel control=
+                            {
+                              <Checkbox
+                                defaultChecked
+                                onChange={e => setWatcherAlertType(e.target.checked)}
+                              />
+                            } label="Trigger above target" />
+                        </FormGroup>
+                      </Box>
+                    </Box>
+                    {watcher.targetPrice !== undefined &&
+                      <Typography variant="subtitle2" sx={{ marginBottom: '8px', color: '#90caf9' }}>
+                        Alert will be triggered when: 1 {watcher.coinInfo.symbol} {watcher.type === AlertType.TargetPriceAbove ? ">" : "<"} {watcher.targetPrice} USD
+                      </Typography>
+                    }
+                  </Box>
+                }
+                {feAlertType === FEAlertType.TargetPercentage &&
+                  <Box>
+                    <Box sx={{ display: { xs: 'block', md: 'flex' }, marginBottom: "8px" }}>
+                      <Box sx={{ width: { xs: '100%', md: '30%' }, marginRight: '8px' }}>
+                        <TextField fullWidth
+                          label="Target percentage (%)"
+                          type="number"
+                          value={watcher.targetPercentage}
+                          onChange={e => setWatcher({ ...watcher, targetPercentage: +e.target.value })}
+                        />
+                      </Box>
+                      <Box>
+                        <FormGroup>
+                          <FormControlLabel control=
+                            {
+                              <Checkbox
+                                defaultChecked
+                                onChange={e => setWatcherAlertType(e.target.checked)}
+                              />
+                            } label="Trigger above target" />
+                        </FormGroup>
+                      </Box>
+                    </Box>
+                    {watcher.targetPercentage! > 0 &&
+                      (() => {
+                        const info = {
+                          trend: watcher.type === AlertType.TargetPositivePercentage ? "UP" : "DOWN",
+                          multiplier: watcher.type === AlertType.TargetPositivePercentage ? 1 : -1
+                        }
+                        return (
+                          <Typography variant="subtitle2" sx={{ marginBottom: '8px', color: '#90caf9' }}>
+                            Alert will be triggered when price is {info.trend} {watcher.targetPercentage}% to {watcher.entryPrice! + watcher.entryPrice! * watcher.targetPercentage! * info.multiplier / 100} USD
+                          </Typography>
+                        );
+                      })()
+                    }
+                  </Box>
+                }
+                <Box sx={{ marginTop: '32px', marginBottom: '16px' }}>
+                  <Typography variant="h6">Optional</Typography>
+                  <Divider sx={{ marginBottom: '16px' }} />
+                  <TextField sx={{ width: { xs: '100%', md: '30%' } }}
+                    label={`Amount to sell (${watcher.coinInfo.symbol})`}
                     type="number"
-                    value={watcher.targetPercentage}
-                    onChange={e => setWatcher({ ...watcher, targetPercentage: +e.target.value })}
+                    onChange={e => setWatcher({ ...watcher, amountToSell: +e.target.value })}
                   />
+                  <Box sx={{ marginTop: '16px' }}>
+                    <TextField fullWidth
+                      label="Note"
+                      type="text"
+                      multiline
+                      maxRows={24}
+                      onChange={e => setWatcher({ ...watcher, note: e.target.value })}
+                    />
+                  </Box>
                 </Box>
-                <Box>
-                  <FormGroup>
-                    <FormControlLabel control=
-                      {
-                        <Checkbox
-                          defaultChecked
-                          onChange={e => setWatcherAlertType(e.target.checked)}
-                        />
-                      } label="Trigger above target" />
-                  </FormGroup>
-                </Box>
+                <Button variant="contained"
+                  disabled={!addButtonEnabled || addButtonLoading}
+                  onClick={onAddBtnClick}>
+                  {addButtonLoading ? <CircularProgress size={25} /> : "Add"}
+                </Button>
+                {addWatcherErrorMsg && <Box sx={{ marginTop: '8px' }}>
+                  <Alert severity="error" onClose={() => setAddWatcherErrorMsg("")}>{addWatcherErrorMsg}</Alert>
+                </Box>}
               </Box>
-              {watcher.targetPercentage! > 0 &&
-                // <Typography variant="subtitle2" sx={{ marginBottom: '8px', color: '#90caf9' }}>
-                //   {
-                //     (() => {
-                //       const info = {
-                //         trend: watcher.type === AlertType.TargetPositivePercentage ? "UP" : "DOWN",
-                //         multiplier: watcher.type === AlertType.TargetPositivePercentage ? 1 : -1
-                //       }
-                //       return (
-                //         `Alert will be triggered when price is ${info.trend} ${watcher.targetPercentage}% to 
-                //         ${watcher.entryPrice! + watcher.entryPrice! * watcher.targetPercentage! * info.multiplier / 100} USD`
-                //       );
-                //     })()
-                //   }
-                // </Typography>
-                (() => {
-                  const info = {
-                    trend: watcher.type === AlertType.TargetPositivePercentage ? "UP" : "DOWN",
-                    multiplier: watcher.type === AlertType.TargetPositivePercentage ? 1 : -1
-                  }
-                  return (
-                    <Typography variant="subtitle2" sx={{ marginBottom: '8px', color: '#90caf9' }}>
-                      Alert will be triggered when price is {info.trend} {watcher.targetPercentage}% to {watcher.entryPrice! + watcher.entryPrice! * watcher.targetPercentage! * info.multiplier / 100} USD
-                    </Typography>
-                  );
-                })()
-              }
-            </Box>
-          }
-          <Box sx={{ marginTop: '32px' }}>
-            <Typography variant="h6">Optional</Typography>
-            <Divider sx={{ marginBottom: '16px' }} />
-            <TextField sx={{ width: { xs: '45%', md: '30%' } }}
-              label={`Amount to sell (${watcher.coinInfo.symbol})`}
-              type="number"
-            />
-            <Box sx={{ marginTop: '16px' }}>
-              <TextField fullWidth
-                label="Note"
-                type="text"
-                multiline
-                maxRows={24}
-              />
-            </Box>
-          </Box>
+            </Box>}
           {/* <FormControl onSubmit={(e) => addWatcher(e, formData)}>
               <Box>
                 <TextField sx={{ width: { xs: '100%', md: '80%' }, marginBottom: "8px" }}

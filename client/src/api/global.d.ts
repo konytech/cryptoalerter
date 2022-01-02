@@ -3,10 +3,11 @@ interface CoinInfo {
     url: string;
     symbol: string;
     cmcId: number;
+    iconBase64: string;
 }
 
 interface Watcher {
-    _id?: number;
+    _id?: string;
     coinInfo: CoinInfo;
     active?: boolean;
     order?: number;

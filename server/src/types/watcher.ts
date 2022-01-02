@@ -8,6 +8,7 @@ export interface CoinInfo {
     url: string;
     symbol: string;
     cmcId: number;
+    iconBase64: string;
 }
 
 export interface Watcher extends Document {
