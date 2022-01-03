@@ -8,11 +8,11 @@ const WatchersList = () => {
   const [watchers, setWatchers] = useState<Watcher[]>([]);
 
   useEffect(() => {
-    fetchWatchers();
+    refreshWatchersList();
     console.log("useEffect-fetchWatchers")
   }, []);
 
-  const fetchWatchers = (): void => {
+  const refreshWatchersList = (): void => {
     getWatchers()
       .then((res: AxiosResponse) => {
         setWatchers(res.data.watchers);
@@ -42,7 +42,8 @@ const WatchersList = () => {
       {watchers && watchers.map((watcher: Watcher) => (
         <WatcherItem
           key={watcher._id}
-          watcherProp={watcher}
+          watcher={watcher}
+          refreshWatchersList={refreshWatchersList}
         />
       ))}
     </Box>

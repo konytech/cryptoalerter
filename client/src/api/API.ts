@@ -18,6 +18,10 @@ export const setWatcherActive = function(watcherId: string, active: boolean) {
     return axios.post(baseUrl + "/set-watcher-active", { watcherId, active });
 }
 
+export const deleteWatcher = function(watcherId: string) {
+    return axios.post(baseUrl + "/delete-watcher", { watcherId });
+}
+
 // TODO edit
 
 // TODO remove

@@ -101,6 +101,26 @@ const setWatcherActive = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+const deleteWatcher = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const watcherId: string = req.body.watcherId;
+        console.log(`[WatchersController.deleteWatcher] Request received. watcherId=${watcherId}`);
+
+        WatcherModel.findOneAndDelete({ _id: watcherId }, undefined,
+            (error, watcher) => {
+                if (error) {
+                    dispatchError(res, `${error}`);
+                }
+                else {
+                    res.status(200).send();
+                    console.log(`[WatchersController.deleteWatcher] Deleted watcher. watcherId=${watcherId}`);
+                }
+            });
+    } catch (error) {
+        dispatchError(res, `${error}`);
+    }
+}
+
 // TODO Update
 // https://www.freecodecamp.org/news/how-to-build-a-todo-app-with-react-typescript-nodejs-and-mongodb/
 // https://github.com/ibrahima92/fullstack-typescript-mern-todo/blob/master/server/src/controllers/todos/index.ts
@@ -112,5 +132,6 @@ const setWatcherActive = async (req: Request, res: Response): Promise<void> => {
 export {
     getWatchers,
     addWatcher,
-    setWatcherActive
+    setWatcherActive,
+    deleteWatcher
 };

@@ -17,6 +17,8 @@ import AddIcon from '@mui/icons-material/Add';
 import EventIcon from '@mui/icons-material/Event';
 import AddWatcher from './components/Watchers/AddWatcher';
 import { ThemeProvider } from "@mui/material/styles";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import theme from "./theme";
 
 const drawerWidth = 240;
@@ -63,7 +65,7 @@ export default function App() {
               selected={menuIndex === curMenuIndex}
               onClick={() => setMenuIndex(curMenuIndex)}>
               <ListItemIcon>
-                {index === 0 && <EventIcon sx={{ color: 'white' }}/>}
+                {index === 0 && <EventIcon sx={{ color: 'white' }} />}
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItem>
@@ -80,7 +82,7 @@ export default function App() {
               selected={menuIndex === curMenuIndex}
               onClick={() => setMenuIndex(curMenuIndex)}>
               <ListItemIcon>
-                {index === 0 && <AddIcon sx={{ color: 'white' }}/>}
+                {index === 0 && <AddIcon sx={{ color: 'white' }} />}
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItem>
@@ -91,72 +93,75 @@ export default function App() {
   );
 
   return (
-    <ThemeProvider theme={theme.currentTheme}>
-      <CssBaseline />
-      <Box sx={{ display: 'flex' }} className='App'>
-        <AppBar
-          position="fixed"
-          sx={{
-            width: { sm: `calc(100% - ${drawerWidth}px)` },
-            ml: { sm: `${drawerWidth}px`,
-            backgroundColor: theme.colors.fourth },
-          }}
-        >
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { sm: 'none' } }}
+      <ThemeProvider theme={theme.currentTheme}>
+        <CssBaseline />
+        <ToastContainer closeOnClick={false} autoClose={8000} />
+        <Box sx={{ display: 'flex' }} className='App'>
+          <AppBar
+            position="fixed"
+            sx={{
+              width: { sm: `calc(100% - ${drawerWidth}px)` },
+              ml: {
+                sm: `${drawerWidth}px`,
+                backgroundColor: theme.colors.fourth
+              },
+            }}
+          >
+            <Toolbar>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleDrawerToggle}
+                sx={{ mr: 2, display: { sm: 'none' } }}
+              >
+                <MenuIcon sx={{ color: 'white' }} />
+              </IconButton>
+              <Typography variant="h6" noWrap component="div">
+                Crypto alerter
+              </Typography>
+            </Toolbar>
+          </AppBar>
+          <Box
+            component="nav"
+            sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+            aria-label="mailbox folders"
+          >
+            {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+            <Drawer
+              variant="temporary"
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              ModalProps={{
+                keepMounted: true, // Better open performance on mobile.
+              }}
+              sx={{
+                display: { xs: 'block', sm: 'none' },
+                '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+              }}
             >
-              <MenuIcon sx={{ color: 'white' }} />
-            </IconButton>
-            <Typography variant="h6" noWrap component="div">
-              Crypto alerter
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <Box
-          component="nav"
-          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-          aria-label="mailbox folders"
-        >
-          {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-            sx={{
-              display: { xs: 'block', sm: 'none' },
-              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-            }}
+              {drawer}
+            </Drawer>
+            <Drawer
+              variant="permanent"
+              sx={{
+                display: { xs: 'none', sm: 'block' },
+                '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+              }}
+              open
+            >
+              {drawer}
+            </Drawer>
+          </Box>
+          <Box
+            component="main"
+            sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
           >
-            {drawer}
-          </Drawer>
-          <Drawer
-            variant="permanent"
-            sx={{
-              display: { xs: 'none', sm: 'block' },
-              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-            }}
-            open
-          >
-            {drawer}
-          </Drawer>
+            <Toolbar />
+            {menuIndex === 0 && <WatchersList />}
+            {menuIndex === -1 && <AddWatcher />}
+          </Box>
         </Box>
-        <Box
-          component="main"
-          sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
-        >
-          <Toolbar />
-          {menuIndex === 0 && <WatchersList />}
-          {menuIndex === -1 && <AddWatcher />}
-        </Box>
-      </Box>
-    </ThemeProvider>
+      </ThemeProvider>
   );
 }
