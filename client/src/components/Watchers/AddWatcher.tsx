@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import theme from '../../theme';
 import { getCoinInfo, addWatcher } from '../../api/API'
 import { AxiosError, AxiosResponse } from 'axios';
-import { AlertType } from '../../api/types';
+import { AlertType, getTriggerDescription } from '../../utils';
 
 const enum FEAlertType {
   TargetPrice = 1,
@@ -15,7 +15,7 @@ const enum FEAlertType {
 //   addWatcher: (e: React.FormEvent, formData: Watcher | any) => void;
 // }
 
-const AddWatcher/*: React.FC<Props>*/ = (/*{ addWatcher }*/) => {
+const AddWatcher = () => {
   const [watcher, setWatcher] = useState<Watcher>({
     coinInfo: {
       cmcId: 0, // TODO DEV ONLY
@@ -62,24 +62,22 @@ const AddWatcher/*: React.FC<Props>*/ = (/*{ addWatcher }*/) => {
 
   // Form validation
   useEffect(() => {
-    // Clamp
-    if (watcher.targetPrice! < 0)
-      setWatcher({ ...watcher, targetPrice: 0 });
-
-    // Clamp
-    if (watcher.targetPercentage! < 1)
-      setWatcher({ ...watcher, targetPercentage: 1 });
-
     // Add button state
     let canAdd = false;
 
-    if (watcher.targetPrice! >= 0 && (watcher.type! === AlertType.TargetPriceAbove || watcher.type! === AlertType.TargetPriceBelow))
+    // Clamp
+    if (watcher.type! === AlertType.TargetPriceAbove && watcher.targetPrice! >= watcher.entryPrice!)
       canAdd = true;
 
-    if (watcher.targetPercentage! > 0 && (watcher.type! === AlertType.TargetPositivePercentage || watcher.type! === AlertType.TargetNegativePercentage))
+    // Clamp
+    if (watcher.type! === AlertType.TargetPriceBelow && watcher.targetPrice! > 0 && watcher.targetPrice! <= watcher.entryPrice!)
       canAdd = true;
 
-    setAddButtonEnabled(canAdd)
+    // Clamp
+    if ((watcher.type! === AlertType.TargetNegativePercentage || watcher.type! === AlertType.TargetPositivePercentage) && watcher.targetPercentage! >= 1)
+      canAdd = true;
+
+    setAddButtonEnabled(canAdd);
   }, [watcher])
 
   function setWatcherAlertType(checkboxChecked: boolean) {
@@ -128,6 +126,7 @@ const AddWatcher/*: React.FC<Props>*/ = (/*{ addWatcher }*/) => {
     addWatcher(watcher)
       .then((res: AxiosResponse) => {
         setAddButtonLoading(false);
+        window.location.reload(); // Reload the app
       })
       .catch((error: AxiosError) => {
         const errorMsg = error.response?.data.message ?? error.message;
@@ -230,13 +229,13 @@ const AddWatcher/*: React.FC<Props>*/ = (/*{ addWatcher }*/) => {
                                 defaultChecked
                                 onChange={e => setWatcherAlertType(e.target.checked)}
                               />
-                            } label="Trigger above target" />
+                            } label={watcher.type! === AlertType.TargetPriceBelow ? "Trigger below target" : "Trigger above target"} />
                         </FormGroup>
                       </Box>
                     </Box>
-                    {watcher.targetPrice !== undefined &&
+                    {addButtonEnabled === true &&
                       <Typography variant="subtitle2" sx={{ marginBottom: '8px', color: '#90caf9' }}>
-                        Alert will be triggered when: 1 {watcher.coinInfo.symbol} {watcher.type === AlertType.TargetPriceAbove ? ">" : "<"} {watcher.targetPrice} USD
+                        {getTriggerDescription(watcher)}
                       </Typography>
                     }
                   </Box>
@@ -260,22 +259,14 @@ const AddWatcher/*: React.FC<Props>*/ = (/*{ addWatcher }*/) => {
                                 defaultChecked
                                 onChange={e => setWatcherAlertType(e.target.checked)}
                               />
-                            } label="Trigger above target" />
+                            } label={watcher.type! === AlertType.TargetNegativePercentage ? "Trigger below percentage" : "Trigger above percentage"} />
                         </FormGroup>
                       </Box>
                     </Box>
-                    {watcher.targetPercentage! > 0 &&
-                      (() => {
-                        const info = {
-                          trend: watcher.type === AlertType.TargetPositivePercentage ? "UP" : "DOWN",
-                          multiplier: watcher.type === AlertType.TargetPositivePercentage ? 1 : -1
-                        }
-                        return (
-                          <Typography variant="subtitle2" sx={{ marginBottom: '8px', color: '#90caf9' }}>
-                            Alert will be triggered when price is {info.trend} {watcher.targetPercentage}% to {watcher.entryPrice! + watcher.entryPrice! * watcher.targetPercentage! * info.multiplier / 100} USD
-                          </Typography>
-                        );
-                      })()
+                    {addButtonEnabled === true &&
+                      <Typography variant="subtitle2" sx={{ marginBottom: '8px', color: '#90caf9' }}>
+                        {getTriggerDescription(watcher)}
+                      </Typography>
                     }
                   </Box>
                 }

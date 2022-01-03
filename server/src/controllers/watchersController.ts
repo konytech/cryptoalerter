@@ -21,7 +21,7 @@ const getWatchers = async (req: Request, res: Response): Promise<void> => {
 const addWatcher = async (req: Request, res: Response): Promise<void> => {
     try {
         const reqWatcher = req.body.watcher as Watcher;
-        console.log("[WatchersController.addWatcher] " + reqWatcher);
+        //console.log("[WatchersController.addWatcher] " + reqWatcher);
 
         if (reqWatcher.note && reqWatcher.note.length > 2000) {
             dispatchError(res, "Note is too long. Max: 2000 characters");

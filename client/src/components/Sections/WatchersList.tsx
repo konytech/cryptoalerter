@@ -39,13 +39,13 @@ const WatchersList = () => {
   return (
     <Box>
       <Typography variant="h4" sx={{ marginBottom: '16px' }}>My watchers</Typography>
-      {watchers && watchers.map((watcher: Watcher) => (
-        <WatcherItem
-          key={watcher._id}
-          watcher={watcher}
-          refreshWatchersList={refreshWatchersList}
-        />
-      ))}
+        {watchers && watchers.map((watcher: Watcher) => (
+          <WatcherItem
+            key={watcher._id}
+            watcher={watcher}
+            refreshWatchersList={refreshWatchersList}
+          />
+        ))}
     </Box>
   )
 };
