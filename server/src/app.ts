@@ -49,6 +49,9 @@ mongoose.connect(uri, options, async () => {
     });
 });
 
+//Bind connection to error event (to get notification of connection errors)
+mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
 function delay(time: number) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
