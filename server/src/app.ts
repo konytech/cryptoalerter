@@ -33,6 +33,7 @@ const options: MongoClientOptions = {
     w: "majority"
 };
 
+console.log(`Attempting connection to mongoDB...`);
 mongoose.connect(uri, options, async () => {
     app.listen(PORT, async () => {
         console.log(`Server running on http://localhost:${PORT}`);
