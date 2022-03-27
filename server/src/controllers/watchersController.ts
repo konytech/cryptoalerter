@@ -1,10 +1,11 @@
 import { Response, Request } from "express";
 import { AlertType, Watcher } from "../types/watcher";
-import { dispatchError, Logger } from "../utils";
+import { dispatchError, Logger, verifyAuth } from "../utils";
 import WatcherModel from "../models/watcher";
 
 const getWatchers = async (req: Request, res: Response): Promise<void> => {
     try {
+        verifyAuth(req);
         const watchers: Watcher[] = await WatcherModel.find();
         res.status(200).json({ watchers });
     } catch (error) {
@@ -14,6 +15,7 @@ const getWatchers = async (req: Request, res: Response): Promise<void> => {
 
 const addWatcher = async (req: Request, res: Response): Promise<void> => {
     try {
+        verifyAuth(req);
         const reqWatcher = req.body.watcher as Watcher;
         Logger.log("addWatcher", `Request received.`);
 
@@ -76,6 +78,7 @@ const addWatcher = async (req: Request, res: Response): Promise<void> => {
 
 const setWatcherActive = async (req: Request, res: Response): Promise<void> => {
     try {
+        verifyAuth(req);
         const watcherId: string = req.body.watcherId;
         const active: boolean = req.body.active;
         Logger.log("setWatcherActive", `Request received. watcherId=${watcherId}, active=${active}`);
@@ -97,6 +100,7 @@ const setWatcherActive = async (req: Request, res: Response): Promise<void> => {
 
 const deleteWatcher = async (req: Request, res: Response): Promise<void> => {
     try {
+        verifyAuth(req);
         const watcherId: string = req.body.watcherId;
         Logger.log("deleteWatcher", `Request received. watcherId=${watcherId}`);
 

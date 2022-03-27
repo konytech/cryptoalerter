@@ -1,4 +1,7 @@
-import { Response } from "express";
+import dotenv from "dotenv";
+import { Request, Response } from "express";
+
+dotenv.config();
 
 export const getTimeUTC = function() {
     return new Date().toISOString();
@@ -27,4 +30,10 @@ export function dispatchError(context: string, res: Response, error: unknown) {
         message: `[Server] ${error}`
     });
     Logger.logError(context, error, "dispatchError");
+}
+
+export function verifyAuth(req: Request) {
+    if(!req?.body?.authToken || req.body.authToken !== process.env.AUTH_TOKEN) {
+        throw new Error("Authentication failed");
+    }
 }

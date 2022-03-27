@@ -3,7 +3,7 @@ import { getWatchers, addWatcher, setWatcherActive, deleteWatcher } from "../con
 import { getCoinInfo } from "../controllers/cmcController";
 
 const router: Router = Router();
-router.get("/watchers", getWatchers);
+router.post("/watchers", getWatchers);
 router.post("/add-watcher", addWatcher);
 router.post("/coinInfo", getCoinInfo);
 router.post("/set-watcher-active", setWatcherActive);

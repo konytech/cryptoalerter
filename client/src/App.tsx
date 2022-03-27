@@ -42,7 +42,7 @@ export default function App() {
 
   const [menuIndex, setMenuIndex] = useState(0); // 0 for main, -1 for addWatcher
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [serverStatus, setServerConnectionStatus] = useState(ServerStatus.Idle); // 0 for connecting, 1 for ok, -1 for error
+  const [serverStatus, setServerStatus] = useState(ServerStatus.Idle); // 0 for connecting, 1 for ok, -1 for error
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -60,14 +60,14 @@ export default function App() {
       return;
     }
 
-    setServerConnectionStatus(ServerStatus.Connecting);
+    setServerStatus(ServerStatus.Connecting);
     getWatchers()
       .then((res: AxiosResponse) => {
         console.log("Connection successful")
-        setServerConnectionStatus(ServerStatus.Connected);
+        setServerStatus(ServerStatus.Connected);
       })
       .catch((error: AxiosError) => {
-        setServerConnectionStatus(ServerStatus.Failure);
+        setServerStatus(ServerStatus.Failure);
         console.log("Connection failure")
       });
   }

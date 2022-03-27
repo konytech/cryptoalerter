@@ -7,11 +7,14 @@ import dotenv from "dotenv";
 import 'source-map-support/register';
 import { AlertType, Watcher } from "./types/watcher";
 import WatcherModel from "./models/watcher"
-import { getTimeUTC, delay, Logger } from "./utils";
+import { delay, Logger } from "./utils";
 import cmcApi from "./external/cmc-api"
 import mailer from "./external/mailer";
 
 dotenv.config();
+if(!process.env.AUTH_TOKEN) {
+    throw new Error("AUTH_TOKEN must be set");
+}
 
 const app: Express = express();
 const PORT: string | number = process.env.PORT || 4000;
