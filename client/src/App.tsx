@@ -148,6 +148,7 @@ export default function App() {
           </ListItemIcon>
           <ListItemText>
             <Chip
+              sx={{ maxWidth: '100%' }}
               label={getServerUrl()}
               color={getServerConnectionStatusColor()}
             //onClick={handleClick}
