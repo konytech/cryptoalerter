@@ -33,10 +33,6 @@ export function dispatchError(context: string, res: Response, error: unknown) {
 }
 
 export function verifyAuth(req: Request) {
-    if(!process.env.AUTH_TOKEN) {
-        return;
-    }
-    
     if(!req?.body?.authToken || req.body.authToken !== process.env.AUTH_TOKEN) {
         throw new Error("Authentication failed");
     }
