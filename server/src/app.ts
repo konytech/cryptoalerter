@@ -13,7 +13,7 @@ import mailer from "./external/mailer";
 
 dotenv.config();
 if(!process.env.AUTH_TOKEN) {
-    throw new Error("AUTH_TOKEN must be set");
+    Logger.log("WARNING", "AUTH_TOKEN not set. Authentication disabled");
 }
 
 const app: Express = express();
