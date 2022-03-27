@@ -1,4 +1,3 @@
-import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -22,11 +21,13 @@ import { ThemeProvider } from "@mui/material/styles";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import theme from "./theme";
-import { Chip, CircularProgress } from '@mui/material';
+import { Alert, Chip, CircularProgress } from '@mui/material';
 import { getServerUrl } from './utils';
 import { useEffect, useState } from 'react';
 import { getWatchers } from './api/API';
 import { AxiosResponse, AxiosError } from 'axios';
+
+// Start the app with http://localhost:3000/?authToken=auth-token-here
 
 const drawerWidth = 240;
 const SERVER_STATUS_REFRESH_SECONDS = 60;
@@ -42,7 +43,11 @@ export default function App() {
 
   const [menuIndex, setMenuIndex] = useState(0); // 0 for main, -1 for addWatcher
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authToken, setAuthToken] = useState("");
   const [serverStatus, setServerStatus] = useState(ServerStatus.Idle); // 0 for connecting, 1 for ok, -1 for error
+
+  // Get auth token from GET paramerers (e.g. /?authToken=TOKEN)
+  const getQueryParams = (query = null) => (query || window.location.search.replace('?', '')).split('&').map((e: any) => e.split('=').map(decodeURIComponent)).reduce((r: any, [k, v]) => (r[k] = v, r), {});
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -50,8 +55,13 @@ export default function App() {
     }, 1000 * SERVER_STATUS_REFRESH_SECONDS);
     attemptServerConnection();
 
+    if (!authToken && getQueryParams().authToken) {
+      const authToken = getQueryParams().authToken as string;
+      setAuthToken(authToken);
+    }
+
     return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
-  }, []);
+  }, [authToken]);
 
   const attemptServerConnection = () => {
     console.log("Attempting to connect to server...")
@@ -60,16 +70,18 @@ export default function App() {
       return;
     }
 
-    setServerStatus(ServerStatus.Connecting);
-    getWatchers()
-      .then((res: AxiosResponse) => {
-        console.log("Connection successful")
-        setServerStatus(ServerStatus.Connected);
-      })
-      .catch((error: AxiosError) => {
-        setServerStatus(ServerStatus.Failure);
-        console.log("Connection failure")
-      });
+    if (authToken) {
+      setServerStatus(ServerStatus.Connecting);
+      getWatchers(authToken)
+        .then((res: AxiosResponse) => {
+          console.log("Connection successful")
+          setServerStatus(ServerStatus.Connected);
+        })
+        .catch((error: AxiosError) => {
+          setServerStatus(ServerStatus.Failure);
+          console.log("Connection failure")
+        });
+    }
   }
 
   const handleDrawerToggle = () => {
@@ -90,7 +102,7 @@ export default function App() {
   }
 
   const drawer = (
-    <div>
+    <Box>
       <Toolbar />
       <Divider />
       <List>
@@ -135,88 +147,90 @@ export default function App() {
             {serverStatus === ServerStatus.Failure && <ErrorOutlineIcon sx={{ color: 'white' }} />}
           </ListItemIcon>
           <ListItemText>
-          <Chip
-            label={getServerUrl()}
-            color={getServerConnectionStatusColor()}
-          //onClick={handleClick}
-          //deleteIcon={<DoneIcon />}
-          />
+            <Chip
+              label={getServerUrl()}
+              color={getServerConnectionStatusColor()}
+            //onClick={handleClick}
+            //deleteIcon={<DoneIcon />}
+            />
           </ListItemText>
         </ListItem>
       </List>
-    </div>
+    </Box>
   );
 
   return (
     <ThemeProvider theme={theme.currentTheme}>
       <CssBaseline />
       <ToastContainer closeOnClick={false} autoClose={8000} />
-      <Box sx={{ display: 'flex' }} className='App'>
-        <AppBar
-          position="fixed"
-          sx={{
-            width: { sm: `calc(100% - ${drawerWidth}px)` },
-            ml: {
-              sm: `${drawerWidth}px`,
-              backgroundColor: theme.colors.fourth
-            },
-          }}
-        >
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { sm: 'none' } }}
+      {authToken &&
+        <Box sx={{ display: 'flex' }} className='App'>
+          <AppBar
+            position="fixed"
+            sx={{
+              width: { sm: `calc(100% - ${drawerWidth}px)` },
+              ml: {
+                sm: `${drawerWidth}px`,
+                backgroundColor: theme.colors.fourth
+              },
+            }}
+          >
+            <Toolbar>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleDrawerToggle}
+                sx={{ mr: 2, display: { sm: 'none' } }}
+              >
+                <MenuIcon sx={{ color: 'white' }} />
+              </IconButton>
+              <Typography variant="h6" noWrap component="div">
+                Crypto alerter
+              </Typography>
+            </Toolbar>
+          </AppBar>
+          <Box
+            component="nav"
+            sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+            aria-label="mailbox folders"
+          >
+            {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+            <Drawer
+              variant="temporary"
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              ModalProps={{
+                keepMounted: true, // Better open performance on mobile.
+              }}
+              sx={{
+                display: { xs: 'block', sm: 'none' },
+                '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+              }}
             >
-              <MenuIcon sx={{ color: 'white' }} />
-            </IconButton>
-            <Typography variant="h6" noWrap component="div">
-              Crypto alerter
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <Box
-          component="nav"
-          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-          aria-label="mailbox folders"
-        >
-          {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-            sx={{
-              display: { xs: 'block', sm: 'none' },
-              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-            }}
+              {drawer}
+            </Drawer>
+            <Drawer
+              variant="permanent"
+              sx={{
+                display: { xs: 'none', sm: 'block' },
+                '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+              }}
+              open
+            >
+              {drawer}
+            </Drawer>
+          </Box>
+          <Box
+            component="main"
+            sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
           >
-            {drawer}
-          </Drawer>
-          <Drawer
-            variant="permanent"
-            sx={{
-              display: { xs: 'none', sm: 'block' },
-              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-            }}
-            open
-          >
-            {drawer}
-          </Drawer>
-        </Box>
-        <Box
-          component="main"
-          sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
-        >
-          <Toolbar />
-          {menuIndex === 0 && <WatchersList />}
-          {menuIndex === -1 && <AddWatcher />}
-        </Box>
-      </Box>
+            <Toolbar />
+            {menuIndex === 0 && <WatchersList authToken={authToken}/>}
+            {menuIndex === -1 && <AddWatcher authToken={authToken}/>}
+          </Box>
+        </Box>}
+      {!authToken && <Alert severity="error">Authtoken not set</Alert>}
     </ThemeProvider>
   );
 }

@@ -15,7 +15,7 @@ const enum FEAlertType {
 //   addWatcher: (e: React.FormEvent, formData: Watcher | any) => void;
 // }
 
-const AddWatcher = () => {
+const AddWatcher = ({ authToken } : { authToken: string }) => {
   const [watcher, setWatcher] = useState<Watcher>({
     coinInfo: {
       cmcId: 0, // TODO DEV ONLY
@@ -106,7 +106,7 @@ const AddWatcher = () => {
     if (url.match("^https://coinmarketcap.com/currencies/[a-zA-Z-]*/?$")) {
       // Valid url
       setCmcUrlState({ ...cmcUrlState, loading: true });
-      getCoinInfo(url)
+      getCoinInfo(authToken, url)
         .then((res: AxiosResponse) => {
           setCmcUrlState({ ...cmcUrlState, hidden: true });
           //console.log(res.data.watcher.entryPrice);
@@ -123,7 +123,7 @@ const AddWatcher = () => {
   const onAddBtnClick = () => {
     setAddButtonLoading(true);
     setAddWatcherErrorMsg("");
-    addWatcher(watcher)
+    addWatcher(authToken, watcher)
       .then((res: AxiosResponse) => {
         setAddButtonLoading(false);
         window.location.reload(); // Reload the app

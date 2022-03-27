@@ -5,7 +5,7 @@ import { Box, Typography } from '@mui/material'
 import { AxiosError, AxiosResponse } from 'axios';
 import Notifier from "../../controllers/notificationsController";
 
-const WatchersList = () => {
+const WatchersList = ({ authToken } : { authToken: string }) => {
   const [watchers, setWatchers] = useState<Watcher[]>([]);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ const WatchersList = () => {
   }, []);
 
   const refreshWatchersList = (): void => {
-    getWatchers()
+    getWatchers(authToken)
       .then((res: AxiosResponse) => {
         setWatchers(res.data.watchers);
       })
@@ -25,23 +25,12 @@ const WatchersList = () => {
       });
   };
 
-  // const handleAddWatcher = (e: React.FormEvent, formData: Watcher): void => {
-  //   e.preventDefault();
-  //   console.log(new Date());
-  //   addWatcher(formData)
-  //     .then(res => {
-  //       setWatchers(res.data.watchers);
-  //     })
-  //     .catch(error => {
-  //       console.error(error);
-  //     });
-  // };
-
   return (
     <Box>
       <Typography variant="h4" sx={{ marginBottom: '16px' }}>My watchers</Typography>
         {watchers && watchers.map((watcher: Watcher) => (
           <WatcherItem
+            authToken={authToken}
             key={watcher._id}
             watcher={watcher}
             refreshWatchersList={refreshWatchersList}

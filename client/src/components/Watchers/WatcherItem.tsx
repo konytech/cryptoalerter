@@ -9,9 +9,11 @@ import { AxiosError, AxiosResponse } from 'axios';
 import Notifier from "../../controllers/notificationsController";
 
 const WatcherItem = ({
+  authToken,
   watcher,
   refreshWatchersList
 }: {
+  authToken: string,
   watcher: Watcher,
   refreshWatchersList: () => void
 }) => {
@@ -22,7 +24,7 @@ const WatcherItem = ({
   const onActiveSwitchChange = (watcherId: string, checked: boolean) => {
 
     setBackdropEnabled(true);
-    setWatcherActive(watcherId, checked)
+    setWatcherActive(authToken, watcherId, checked)
       .then((res: AxiosResponse) => {
         refreshWatchersList();
         Notifier.logSuccess(`Watcher ${res.data.active ? "enabled" : "disabled"}`);
@@ -40,7 +42,7 @@ const WatcherItem = ({
   const requestDeletion = (watcherId: string) => {
 
     setBackdropEnabled(true);
-    deleteWatcher(watcherId)
+    deleteWatcher(authToken, watcherId)
       .then((res: AxiosResponse) => {
         refreshWatchersList();
         Notifier.logSuccess(`Watcher deleted`);
