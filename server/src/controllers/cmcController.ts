@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 import { Watcher } from "../types/watcher";
 import cmcIdFinder from "../external/cmcIdFinder";
 import cmcApi from "../external/cmc-api"
+import { dispatchError } from "../utils";
 
 const getCoinInfo = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -17,10 +18,7 @@ const getCoinInfo = async (req: Request, res: Response): Promise<void> => {
 
         res.status(200).json({ watcher });
     } catch (error) {
-        res.status(400).json({
-            message: `[Server] ${error}`
-        });
-        console.log(error);
+        dispatchError("getCoinInfo", res, error);
     }
 }
 

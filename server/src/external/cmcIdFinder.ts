@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { CoinInfo } from '../types/watcher';
+import { Logger } from '../utils';
 
 async function getBase64(url: string) {
     const response = await axios.get(url, { responseType: 'arraybuffer' });
@@ -7,7 +8,7 @@ async function getBase64(url: string) {
 }
 
 async function find(url: string) {
-    //console.log(`Perform cmcId lookup for url: ${url}`);
+    Logger.log("cmcIdFinder.find", `Perform cmcId lookup for url: ${url}`);
 
     //const splittedUrl = url.split("/").filter(x => x); // remove empty values
     //let name = splittedUrl[splittedUrl.length - 1];

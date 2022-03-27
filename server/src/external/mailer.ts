@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import { Logger } from '../utils';
 
 dotenv.config();
 
@@ -24,9 +25,9 @@ function sendAlert(subject: string, text: string) {
 
     mail.sendMail(mailOptions, function(error, info){
         if (error) {
-            console.log(error);
+            Logger.logError("sendMail", error);
         } else {
-            console.log('Alert sent: ' + info.response);
+            Logger.log("sendMail", `Alert sent: ${info.response}`);
         }
     });
 }

@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 import 'source-map-support/register';
 import { AlertType, Watcher } from "./types/watcher";
 import WatcherModel from "./models/watcher"
-import { getTimeUTC } from "./utils";
+import { getTimeUTC, delay, Logger } from "./utils";
 import cmcApi from "./external/cmc-api"
 import mailer from "./external/mailer";
 
@@ -15,6 +15,7 @@ dotenv.config();
 
 const app: Express = express();
 const PORT: string | number = process.env.PORT || 4000;
+const WATCHER_REFRESH_TIME_SECONDS: number = process.env.WATCHER_REFRESH_TIME_SECONDS ? Number.parseInt(process.env.WATCHER_REFRESH_TIME_SECONDS) : 60;
 
 app.use(
     express.urlencoded({
@@ -33,19 +34,19 @@ const options: MongoClientOptions = {
     w: "majority"
 };
 
-console.log(`Attempting connection to mongoDB...`);
+Logger.log("Main", "Attempting connection to mongoDB...");
 mongoose.connect(uri, options, async () => {
     app.listen(PORT, async () => {
-        console.log(`Server running on http://localhost:${PORT}`);
+        Logger.log("Main", `Server running on http://localhost:${PORT}`);
 
         // Start watching for alerts to trigger
         for (; ;) {
             try {
                 await watch();
             } catch (error) {
-                console.log(`${getTimeUTC()} [Main] Watch routine failed:\n${error}`);
+                Logger.logError("Main", error, `Watch routine failed`);
             }
-            await delay(1000 * 60);
+            await delay(1000 * WATCHER_REFRESH_TIME_SECONDS);
         }
     });
 });
@@ -53,18 +54,15 @@ mongoose.connect(uri, options, async () => {
 //Bind connection to error event (to get notification of connection errors)
 mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-function delay(time: number) {
-    return new Promise(resolve => setTimeout(resolve, time));
-}
-
 async function watch() {
-    console.log(`${getTimeUTC()} [Watch] Watch routine started...`);
+    Logger.log("Watch", "Watch routine started");
 
     const docs = await WatcherModel.find({ active: true });
     if (!docs || docs.length === 0) {
-        console.log(`${getTimeUTC()} [Watch] No watcher found in DB`);
+        Logger.log("Watch", "No watcher found in DB");
         return;
     }
+    //Logger.log("Watch", `${docs.length} watchers found in DB`);
 
     const watchers = docs as Array<Watcher>;
 
@@ -74,11 +72,11 @@ async function watch() {
     const response = await cmcApi.getLatestQuotes(cmcIdsToCheck);
     watchers.forEach(async watcher => {
         const currentPrice = response.data[watcher.coinInfo.cmcId].quote.USD.price;
-        //console.log(`${getTimeUTC()} [Watch] Watcher ${watcher.coinInfo.symbol}, ${currentPrice}`);
+        //Logger.log("Main", `Watcher ${watcher.coinInfo.symbol}, ${currentPrice}`);
         const targetReached = watcherTargetReached(watcher, currentPrice);
 
         if (targetReached) {
-            console.log(`${getTimeUTC()} [Watch] Target reached for ${watcher.coinInfo.symbol}, ID=${watcher._id}`);
+            Logger.log("Watch", `Target reached for ${watcher.coinInfo.symbol}, ID=${watcher._id}`);
 
             // Trigger alert
             const alertSubject = `${watcher.coinInfo.symbol} - Alert target price reached`;
@@ -99,8 +97,7 @@ async function watch() {
             await watcher.save();
         }
     });
-
-    console.log(`${getTimeUTC()} [Watch] Watch routine ended`);
+    Logger.log("Watch", "Watch routine ended");
 }
 
 function watcherTargetReached(watcher: Watcher, price: number): boolean {
