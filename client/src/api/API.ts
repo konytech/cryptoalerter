@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
+import { getServerUrl } from "../utils";
 
-const baseUrl: string = "http://localhost:4000";
+const baseUrl = getServerUrl();
 
 export const getWatchers = function(): Promise<AxiosResponse<ApiDataType>> {
     return axios.get(baseUrl + "/watchers");

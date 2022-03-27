@@ -24,13 +24,12 @@ const WatcherItem = ({
     setBackdropEnabled(true);
     setWatcherActive(watcherId, checked)
       .then((res: AxiosResponse) => {
-        console.log("deleted")
         refreshWatchersList();
         Notifier.logSuccess(`Watcher ${res.data.active ? "enabled" : "disabled"}`);
       })
       .catch((error: AxiosError) => {
         const errorMsg = error.response?.data.message ?? error.message;
-        Notifier.logError(errorMsg);
+        Notifier.logError(`[setWatcherActive] ${errorMsg}`);
         console.error(error);
       })
       .finally(() => {
@@ -48,7 +47,7 @@ const WatcherItem = ({
       })
       .catch((error: AxiosError) => {
         const errorMsg = error.response?.data.message ?? error.message;
-        Notifier.logError(errorMsg);
+        Notifier.logError(`[deleteWatcher] ${errorMsg}`);
         console.error(error);
       })
       .finally(() => {

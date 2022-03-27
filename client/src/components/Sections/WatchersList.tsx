@@ -3,6 +3,7 @@ import WatcherItem from '../Watchers/WatcherItem'
 import { getWatchers } from '../../api/API'
 import { Box, Typography } from '@mui/material'
 import { AxiosError, AxiosResponse } from 'axios';
+import Notifier from "../../controllers/notificationsController";
 
 const WatchersList = () => {
   const [watchers, setWatchers] = useState<Watcher[]>([]);
@@ -19,7 +20,7 @@ const WatchersList = () => {
       })
       .catch((error: AxiosError) => {
         const errorMsg = error.response?.data.message ?? error.message;
-        alert(errorMsg); // TODO
+        Notifier.logError(`[refreshWatchersList] ${errorMsg}`);
         console.error(error);
       });
   };

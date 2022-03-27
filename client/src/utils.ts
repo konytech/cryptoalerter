@@ -6,7 +6,7 @@ export const enum AlertType {
 }
 
 export function getTriggerDescription(watcher: Watcher) {
-    console.log(watcher);
+    //console.log(watcher);
     switch (watcher.type) {
         case AlertType.TargetPriceAbove:
             return `Triggers when > ${watcher.targetPrice} USD or UP ${((watcher.targetPrice! - watcher.entryPrice!) / watcher.entryPrice! * 100).toFixed(1)}%`;
@@ -19,4 +19,8 @@ export function getTriggerDescription(watcher: Watcher) {
         default:
             throw new Error(`Invalid type`);
     }
+}
+
+export function getServerUrl() {
+    return `${process.env.REACT_APP_SERVER_URL}:${process.env.REACT_APP_SERVER_PORT}`;
 }
